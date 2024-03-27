@@ -11,10 +11,10 @@ from langchain_core.prompts.chat import (
 )
 from langchain.agents import create_openai_tools_agent
 
-
+os.environ['OPENAI_API_KEY'] = "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"
 
 db_user = "root"
-
+db_password = "AsimShah%402751"
 db_host = "localhost"
 db_name = "pratice"
 db = SQLDatabase.from_uri(f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}")
@@ -134,9 +134,15 @@ Locations: The locations table likely has a primary key column named LOCATION_ID
 It also likely has a foreign key column named COUNTRY_ID that references the countries table's primary key.
 This relationship allows associating locations with their corresponding countries.
 
+assume corrseponding table name which matches maximum number of column names from the given prompt
+
+
 DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
 
 IF a delete statement is asked then return you do not have the authorization for this
+
+if there are no DO NOT DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database 
+retry queries upto 3 times with diffrent queries.
 
 If the question does not seem related to the database, just return "I don't know" as the answer."""
 
@@ -171,4 +177,4 @@ agent = create_sql_agent(
     agent_type="openai-tools",
 )
 
-agent.invoke({"input": "max salary of programmer."})
+agent.invoke({"input": "average salary of programmer."})
