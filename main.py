@@ -43,13 +43,26 @@ def main():
         print("An error occurred:", e)
 
 
-    # relationship_query = ''
+    relationship_query = """SELECT 
+  `TABLE_SCHEMA`,                          
+  `TABLE_NAME`,                            
+  `COLUMN_NAME`,                           
+  `REFERENCED_TABLE_SCHEMA`,               
+  `REFERENCED_TABLE_NAME`,                
+  `REFERENCED_COLUMN_NAME`                
+FROM
+  `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`  
+WHERE
+  `TABLE_SCHEMA` = SCHEMA()                
+  AND `REFERENCED_TABLE_NAME` IS NOT NULL;"""
 
-    # try:
-    #     relationships = db._execute(relationship_query)
-    #     print("relationships fetched successfully.")
-    # except Exception as e:
-    #     print("An error occurred:", e)
+    print("Fetching relationships")
+
+    try:
+        relationships = db._execute(relationship_query)
+        print("relationships fetched successfully.")
+    except Exception as e:
+        print("An error occurred:", e)
 
     print("Generating system prompt...")
 
@@ -61,21 +74,21 @@ Only generate queries, don't execute them. The schema of the database is
 
 The relationships in the database are
 
-
+{relationships}
 
 """
 
-    # Chunk the entire system prompt
+    
     system_prompt_chunks = [
         system_prefix[i : i + 4096] for i in range(0, len(system_prefix), 4096)
     ]
 
-    # Create system message templates from system prompt chunks
+    
     system_messages = []
     for chunk in system_prompt_chunks:
         system_messages.append(SystemMessage(content=chunk))
 
-    # Create full prompt
+    
     full_prompt = ChatPromptTemplate.from_messages(
         system_messages
         + [
