@@ -1,9 +1,11 @@
 import os
+import pymongo
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_openai import ChatOpenAI
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_core.messages import AIMessage, SystemMessage
+from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -13,7 +15,27 @@ from langchain_core.prompts.chat import (
 
 def main():
     
+    
+    
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    db = client.Users
+    collection = db.sessions
 
+    username = input("Enter your username: ")
+    password = input("Enter your password: ")
+
+# Querying the database for the user
+    user = collection.find_one({"username": username})
+
+    if user:
+    # User exists, now check if the password matches
+        if user["password"] == password:
+            print("Login successful!")
+        else:
+            print("Incorrect password.")
+    else:
+        print("User not found.")    
+    
     db_user = "root"
     
     db_host = "localhost"
@@ -67,15 +89,8 @@ WHERE
     print("Generating system prompt...")
 
     system_prefix = f"""You are an agent designed to interact with a SQL database.
-Given an input question, create a syntactically correct {dialect} query.
-Only generate queries, don't execute them. The schema of the database is 
-
-{schema}
-
-The relationships in the database are
-
-{relationships}
-
+Given an input question, create a syntactically correct {dialect} query. just create
+the query dont execute it
 """
 
     
@@ -98,21 +113,34 @@ The relationships in the database are
     )
 
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
-    agent = create_sql_agent(
-        llm=llm,
-        db=db,
-        prompt=full_prompt,
-        verbose=True,
-        agent_type="openai-tools",
+    memory = ConversationBufferMemory(
+                                input_key="input", 
+                                output_key='output',
+                                memory_key="chat_history",
+                                return_messages= True
+                                  )
+                                  
+    
+    agent_executor = create_sql_agent(
+    llm=llm,
+    db=db,
+    prompt=full_prompt,
+    verbose=True,
+    agent_type="openai-tools",
     )
-
+    
+    chat_history = user.get("chat_history", [])
     while True:
         query = input("Enter your query: ")
-        agent.invoke({"input": query})
+        # Include chat history as context
+        agent_response = agent_executor.invoke({"input":query})
+        print(chat_history)
+        chat_history.append({"chat": agent_response})
         choice = input("Do you want to quit? (y/n): ")
         if choice == "y":
             break
 
+    collection.update_one({"_id": user["_id"]}, {"$set": {"chat_history": chat_history}})
 
 if __name__ == "__main__":
     main()
