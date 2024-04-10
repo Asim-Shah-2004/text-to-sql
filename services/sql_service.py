@@ -1,14 +1,11 @@
 from langchain_community.utilities.sql_database import SQLDatabase
 from config.sql_config import DB_USER, DB_PASSWORD, DB_HOST
 
-# Global variable to store the database connection
 global_db_connection = None
-db_name = None  # Initialize db_name
+db_name = None  
 
 def get_sql_database():
     global global_db_connection, db_name
-
-    # If the global connection already exists, return it
     if global_db_connection:
         return global_db_connection
     else:
@@ -17,7 +14,6 @@ def get_sql_database():
 
     try:
         print("Connecting to database...")
-        # Create a new connection if it doesn't exist
         global_db_connection = SQLDatabase.from_uri(f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{db_name}")
         return global_db_connection
     except Exception as e:
