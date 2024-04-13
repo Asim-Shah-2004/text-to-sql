@@ -4,8 +4,9 @@ from services.agent_executor_service import get_agent_executor
 from services.mongo_service import get_sessions
 
 def main():
-    os.environ["OPENAI_API_KEY"] = "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"
-
+     #put in config
+    #put mongo and sql in db folder
+    #make prompt folder
     user = login()
     collection = get_sessions()
     agent_executor = get_agent_executor()
@@ -23,9 +24,8 @@ def main():
         else:
             context = query
 
-        # Ensure agent_response is a string
         agent_response = str(agent_executor.invoke({"input": query, "context": context}))
-        print(agent_response)
+        # print(agent_response)
 
         chat_history.append({"input": query, "response": agent_response})
 

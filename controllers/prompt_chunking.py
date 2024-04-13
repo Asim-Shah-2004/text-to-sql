@@ -5,7 +5,7 @@ from langchain_core.prompts.chat import (
     MessagesPlaceholder,
 )
 from services.system_prefix_service import get_system_prefix
-
+#this is service
 def get_full_chucked_prompt():
     system_prefix = get_system_prefix()
 
