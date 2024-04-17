@@ -1,8 +1,13 @@
 from system_queries.mySQL import get_relationship_query,get_schema_query
-from services.sql_service import get_sql_database,db_name
-def get_system_prefix():# pass inputs here
+from services.sql_service import get_sql_database,db_name,set_db_name
+def get_system_prefix(use_defaults=False):# pass inputs here
+    if use_defaults:
+        set_db_name('classicmodels')
     db = get_sql_database()
-    dialect = input("Enter the dialect you want the database to be in: ") #no inputs in service
+    if use_defaults:
+        dialect = 'MYSQL'
+    else:
+        dialect = input("Enter the dialect you want the database to be in: ") #no inputs in service
     schema = db._execute(get_schema_query(db_name))
     relationships = db._execute(get_relationship_query())
     

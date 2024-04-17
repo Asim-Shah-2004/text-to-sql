@@ -7,7 +7,7 @@ from langchain_core.prompts.chat import (
 from services.system_prefix_service import get_system_prefix
 #this is service
 def get_full_chucked_prompt():
-    system_prefix = get_system_prefix()
+    system_prefix = get_system_prefix(True)
 
     system_prompt_chunks = [
         system_prefix[i : i + 4096] for i in range(0, len(system_prefix), 4096)

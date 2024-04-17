@@ -17,6 +17,7 @@ def get_agent_executor():
         verbose=True,
         agent_type="openai-tools",
         agent_executor_kwargs={
-            "memory": memory
+            "memory": memory,
+            "return_intermediate_steps": True
         }
     )
